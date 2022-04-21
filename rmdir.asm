@@ -9,21 +9,9 @@
 include    bios.inc
 include    kernel.inc
 
-           org     8000h
-           lbr     0ff00h
-           db      'rmdir',0
-           dw      9000h
-           dw      endrom+7000h
-           dw      2000h
-           dw      endrom-2000h
-           dw      2000h
-           db      0
-
            org     2000h
-           br      start
-
-include    date.inc
-include    build.inc
+begin:     br      start
+           eever
            db      'Written by Michael H. Riley',0
 
 start:
@@ -50,6 +38,7 @@ loop1:     lda     rf                  ; look for first less <= space
            sep     scall               ; otherwise display usage message
            dw      o_inmsg
            db      'Usage: rmdir pathname',10,13,0
+           ldi     0ah
            sep     sret                ; and return to os
 good:      ldi     high fildes         ; get file descriptor
            phi     rd
@@ -65,7 +54,10 @@ good:      ldi     high fildes         ; get file descriptor
            plo     rf
            sep     scall               ; display it
            dw      o_msg
-opened:    sep     sret                ; return to os
+           ldi     0ffh
+           sep     sret
+opened:    ldi     0
+           sep     sret                ; return to os
 
 errmsg:    db      'Invalid Directory'
 crlf:      db      10,13,0
@@ -79,5 +71,9 @@ fildes:    db      0,0,0,0
 
 endrom:    equ     $
 
+.suppress
+
 dta:       ds      512
+
+           end     begin
 
